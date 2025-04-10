@@ -18,6 +18,38 @@ module Solana
         }
       }
 
+      INSTRUCTION_NAMES = {
+        3 => 'transfer',
+        12 => 'transfer_checked'
+      }
+
+      PROGRAM_NAME = 'token'
+
+      def self.parse(fields, data, keys)
+        d = decode_data(fields, data)
+
+        instruction_name = INSTRUCTION_NAMES[d[:instruction]]
+        if instruction_name == 'transfer'
+          return {
+            from_address: keys[0][:pubkey],
+            to_address: keys[1][:pubkey],
+            amount: d[:amount],
+            program_name: PROGRAM_NAME,
+            instruction_name: INSTRUCTION_NAMES[d[:instruction]],
+          }
+        elsif instruction_name == 'transfer_checked'
+          return {
+            from_address: keys[0][:pubkey],
+            to_address: keys[1][:pubkey],
+            amount: d[:amount],
+            decimals: d[:decimals],
+            program_name: PROGRAM_NAME,
+            instruction_name: INSTRUCTION_NAMES[d[:instruction]],
+          }
+        end
+        return nil
+      end
+
       class << self
         def transfer_checked_instruction(from_token_account_pubkey:, token_pubkey:, to_token_account_pubkey:, from_pubkey:, amount:, decimals:)
           fields = INSTRUCTION_LAYOUTS[12]

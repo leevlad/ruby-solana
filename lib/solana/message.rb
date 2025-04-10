@@ -37,7 +37,7 @@ module Solana
         data_bytes = bytes.slice!(0, data_length)
         {program_id_index: program_id_index, accounts: accounts, data: data_bytes}
       end
-      self.new({
+      self.new(
         header: {
           num_required_signatures: num_required_signatures,
           num_readonly_signed_accounts:num_readonly_signed_accounts,
@@ -46,7 +46,7 @@ module Solana
         account_keys: account_keys,
         recent_blockhash: recent_blockhash,
         instructions: instructions
-      })
+      )
     end
 
     def serialize
