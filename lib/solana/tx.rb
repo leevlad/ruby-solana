@@ -52,14 +52,32 @@ module Solana
           }
         end
 
-        tx.instructions.push(
-          {
-            keys: keys,
-            program_id: message.account_keys[instruction[:program_id_index]],
-            data: instruction[:data],
-          })
+        program_id = message.account_keys[instruction[:program_id_index]]
+        decoded_data = nil
+        program_klass = nil
+
+        if program_id == Solana::Program::System::PROGRAM_ID
+          program_klass = Solana::Program::System
+        end
+
+        if program_klass.present?
+          next unless program_klass::INSTRUCTION_LAYOUTS.present?
+
+          fields = program_klass::INSTRUCTION_LAYOUTS[instruction[:data][0]]
+          if fields.present?
+            decoded_data = program_klass.parse(fields, instruction[:data].clone, keys)
+          end
+        end
+
+        tx.instructions.push({
+          keys: keys,
+          program_id: program_id,
+          data: instruction[:data],
+          decoded_data: decoded_data,
+        })
       end
-      tx
+
+      return tx
     end
 
     def serialize
@@ -67,7 +85,7 @@ module Solana
 
       signature_count = Utils.encode_length(signatures.length)
       raise 'invalid length!' if signatures.length > 256
-      
+
       wire_transaction = signature_count
 
       signatures.each do |signature|
@@ -167,7 +185,7 @@ module Solana
                           })
       end
 
-      
+
       # Sort. Prioritizing first by signer, then by writable
       account_metas.sort! do |x, y|
         check_signer = x[:is_signer] == y[:is_signer] ? nil : x[:is_signer] ? -1 : 1

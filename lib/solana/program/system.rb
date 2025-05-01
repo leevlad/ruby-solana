@@ -12,6 +12,27 @@ module Solana
         }
       }
 
+      INSTRUCTION_NAMES = {
+        2 => 'transfer'
+      }
+
+      PROGRAM_NAME = 'system'
+
+      def self.parse(fields, data, keys)
+        d = decode_data(fields, data)
+        instruction_name = INSTRUCTION_NAMES[d[:instruction]]
+        if instruction_name == 'transfer'
+          return {
+            from_address: keys[0][:pubkey],
+            to_address: keys[1][:pubkey],
+            lamports: d[:lamports],
+            program_name: PROGRAM_NAME,
+            instruction_name: INSTRUCTION_NAMES[d[:instruction]],
+          }
+        end
+        return nil
+      end
+
       class << self
         def transfer_instruction(from_pubkey:, to_pubkey:, lamports:)
           fields = INSTRUCTION_LAYOUTS[2]
