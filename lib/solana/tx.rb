@@ -23,7 +23,9 @@ module Solana
         signature_bytes = bytes.slice!(0, SIGNATURE_LENGTH)
         Utils.bytes_to_base58(signature_bytes)
       end
+
       msg = Message.from(bytes)
+
       self.populate(msg, signatures)
     end
 
@@ -58,6 +60,10 @@ module Solana
 
         if program_id == Solana::Program::System::PROGRAM_ID
           program_klass = Solana::Program::System
+        elsif program_id == Solana::Program::Stake::PROGRAM_ID
+          program_klass = Solana::Program::Stake
+        elsif program_id == Solana::Program::Token::PROGRAM_ID
+          program_klass = Solana::Program::Token
         end
 
         if program_klass.present?

@@ -21,5 +21,13 @@ module Solana
     def blob1
       Blob.new(1)
     end
+
+    def blob32
+      Blob.new(32)
+    end
+
+    def string
+      String.new
+    end
   end
 end
