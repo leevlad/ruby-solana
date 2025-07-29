@@ -39,8 +39,9 @@ module Solana
           }
         elsif instruction_name == 'transfer_checked'
           return {
+            mint_address: keys[1][:pubkey],
             from_address: keys[0][:pubkey],
-            to_address: keys[1][:pubkey],
+            to_address: keys[2][:pubkey],
             amount: d[:amount],
             decimals: d[:decimals],
             program_name: PROGRAM_NAME,
